@@ -7,6 +7,7 @@ const cors = require("cors")
 const Event = require('./Schema/EventSchema');
 const User = require('./Schema/UserSchema');
 const authenticateJWT = require("./Middlewares/authorize");
+const methodOverride = require("method-override")
 
 const app=express();
 
@@ -24,18 +25,7 @@ mongoose.connect(dbUrl).then(()=>{
 app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 app.use(cors())
-
-app.get("/events",authenticateJWT,async (req,res)=>{
-    try{
-        const events = await Event.find();
-        return res.status(200).json(events);
-    }
-    catch(e){
-        console.log(e)
-        return res.status(500).json({message:"Unable to Complete the Request, Internal Server Error"})
-    }
-
-})
+app.use(methodOverride("_method"));
 
 app.post("/user/signup",async(req,res)=>{
     const { username, email, password } = req.body;
@@ -94,9 +84,16 @@ app.post("/user/login",async(req,res)=>{
     }
 })
 
-app.get('/users',authenticateJWT,async(req,res)=>{
-    const users = await User.find();
-    return res.json(users)
+app.get("/events",async (req,res)=>{
+    try{
+        const events = await Event.find();
+        return res.status(200).json(events);
+    }
+    catch(e){
+        console.log(e)
+        return res.status(500).json({message:"Unable to Complete the Request, Internal Server Error"})
+    }
+
 })
 
 app.post("/events/add",authenticateJWT,async (req,res)=>{
@@ -122,6 +119,28 @@ app.post("/events/add",authenticateJWT,async (req,res)=>{
         console.log(e)
         return res.status(500).json({ message:"Internal Server Error, Please Try after some time",error:e })
     }    
+})
+
+app.delete("/events/:id",authenticateJWT,async (req,res)=>{
+    const { id } = req.params;
+
+    if(!id) return res.status(400).json({ message:"Fields Missing Information" });
+
+    try{
+        const event = await Event.findById(id);
+        if(!(event)) return res.status(400).json({ message:"Bad Request, Invalid Id" });
+        const delObj = await Event.deleteOne({_id:id});
+        console.log(delObj)
+        return res.status(204).json({ message:"Event successfully deleted" })
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).json({ message:"Internal Server Error, Please Try after some time",error:e })
+    }
+})
+
+app.all("*",(req,res)=>{
+    return res.json({message:"Wrong Route"})
 })
 
 app.listen(4000,()=>{
