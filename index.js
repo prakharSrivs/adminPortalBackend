@@ -7,7 +7,8 @@ const cors = require("cors")
 const Event = require('./Schema/EventSchema');
 const User = require('./Schema/UserSchema');
 const authenticateJWT = require("./Middlewares/authorize");
-const methodOverride = require("method-override")
+const methodOverride = require("method-override");
+const compareEvents = require("./Helpers/sortEvents");
 
 const app=express();
 
@@ -85,8 +86,10 @@ app.post("/user/login",async(req,res)=>{
 })
 
 app.get("/events",async (req,res)=>{
+
     try{
         const events = await Event.find();
+        events.sort(compareEvents);
         return res.status(200).json(events);
     }
     catch(e){
