@@ -28,36 +28,36 @@ app.use(express.json())
 app.use(cors())
 app.use(methodOverride("_method"));
 
-app.post("/user/signup",async(req,res)=>{
-    const { username, email, password } = req.body;
-    if(!(username || email || password )) return res.status(400).json({message:"Fields Missing Information "});
+// app.post("/user/signup",async(req,res)=>{
+//     const { username, email, password } = req.body;
+//     if(!(username || email || password )) return res.status(400).json({message:"Fields Missing Information "});
 
-    const user = await User.find({email});
-    console.log(user)
-    if(user.length) return res.status(403).json({message:"User Already Exists"});
+//     const user = await User.find({email});
+//     console.log(user)
+//     if(user.length) return res.status(403).json({message:"User Already Exists"});
 
-    const hashedPassword = await bcrypt.hash(password,12);
+//     const hashedPassword = await bcrypt.hash(password,12);
     
-    try{
-        const userObject = {
-            name:username,
-            email,
-            hashedPassword
-        }
-        const newUser = new User(userObject);
-        await newUser.save();
-        const token = jwt.sign({id:newUser.id,name:newUser.username},process.env.SECRET,{expiresIn:"30m"})
-        return res.status(200).json({
-            message:"User Created Successfully",
-            token,
-            username:newUser.username,
-            userId:newUser.id,
-        })
-    }
-    catch(e){
-        return res.status(500).json({message:"Internal Server Error, Cannot Create User"})
-    }
-})
+//     try{
+//         const userObject = {
+//             name:username,
+//             email,
+//             hashedPassword
+//         }
+//         const newUser = new User(userObject);
+//         await newUser.save();
+//         const token = jwt.sign({id:newUser.id,name:newUser.username},process.env.SECRET,{expiresIn:"30m"})
+//         return res.status(200).json({
+//             message:"User Created Successfully",
+//             token,
+//             username:newUser.username,
+//             userId:newUser.id,
+//         })
+//     }
+//     catch(e){
+//         return res.status(500).json({message:"Internal Server Error, Cannot Create User"})
+//     }
+// })
 
 app.post("/user/login",async(req,res)=>{
     const { email,password }=req.body;
