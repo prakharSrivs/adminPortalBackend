@@ -1,20 +1,13 @@
 
-const now = new Date();
 
 function compareEvents(eventA, eventB) {
-    const dateA = new Date(eventA.date);
-    const dateB = new Date(eventB.date);
+    const dateAString = eventA?.date?.substring(0,eventA?.date?.indexOf("T"))+"T"+eventA?.time+":00.000Z"
+    const dateBString = eventB?.date?.substring(0,eventB?.date?.indexOf("T"))+"T"+eventB?.time+":00.000Z"
+
+    const dateA = new Date(dateAString);
+    const dateB = new Date(dateBString);
   
-    const timeA = eventA.time.split(':').map(Number);
-    const timeB = eventB.time.split(':').map(Number);
-  
-    dateA.setHours(timeA[0], timeA[1]);
-    dateB.setHours(timeB[0], timeB[1]);
-  
-    const timeDifferenceA = Math.abs(dateA - now);
-    const timeDifferenceB = Math.abs(dateB - now);
-  
-    return timeDifferenceA - timeDifferenceB;
+    return dateB - dateA ;
 }
 
 module.exports = compareEvents; 
